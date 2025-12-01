@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Ignore Model weights and checkpoints
+*.h5
+*.pth
+*.pt
+*.ckpt
+
+# Ignore Videos
+*.mp4
+WhatsApp*

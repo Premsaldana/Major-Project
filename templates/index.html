@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuro Spine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <h1 class="heading">Neuro spine AI</h1>
+
+    <div class="uploadOuter" id="uploadArea">
+        <label for="uploadFile" class="btn btn-primary">Upload Image</label>
+        <strong>OR</strong>
+        <span class="dragBox">
+            Drag and Drop image here
+            <input type="file" 
+                onChange="handleFileUpload(event)" 
+                ondragover="drag()" 
+                ondrop="drop()" 
+                id="uploadFile" 
+                accept=".jpg, .jpeg, .png" 
+            />
+        </span>
+    </div>
+
+    <div class="new-diagnosis-wrapper" id="newDiagnosisWrapper">
+        <a href="/" class="btn btn-new-diagnosis">+ New Diagnosis</a>
+    </div>
+
+    <div class="diagnosis-container" id="diagnosisContainer">
+        <div id="preview"></div>
+        <div id="results"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
