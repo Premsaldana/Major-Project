@@ -1,41 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neuro Spine</title>
+    <title>NeuroSpine AI | Radiologist Workstation</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
-
 <body>
-    <h1 class="heading">Neuro spine AI</h1>
+    
+    <div class="dashboard">
+        <header class="top-bar">
+            <div class="logo">NeuroSpine <span class="accent">AI</span></div>
+        </header>
 
-    <div class="uploadOuter" id="uploadArea">
-        <label for="uploadFile" class="btn btn-primary">Upload Image</label>
-        <strong>OR</strong>
-        <span class="dragBox">
-            Drag and Drop image here
-            <input type="file" 
-                onChange="handleFileUpload(event)" 
-                ondragover="drag()" 
-                ondrop="drop()" 
-                id="uploadFile" 
-                accept=".jpg, .jpeg, .png" 
-            />
-        </span>
-    </div>
+        <main class="main-grid">
+            
+            <section class="panel image-panel">
+                <div class="panel-header">
+                    <h3>Diagnostic Imaging</h3>
+                    <button class="btn-upload" onclick="document.getElementById('uploadFile').click()">Upload Scan</button>
+                    <input type="file" id="uploadFile" accept=".jpg, .jpeg, .png" onchange="handleFileUpload(event)" hidden>
+                </div>
+                
+                <div class="image-viewer" id="imageViewer">
+                    <div class="placeholder-text">
+                        <p>No Image Loaded</p>
+                        <small>Upload an X-ray to begin analysis</small>
+                    </div>
+                </div>
+                
+                <div class="view-controls hidden" id="viewControls">
+                    <button onclick="toggleView('original')" class="btn-toggle active">Original</button>
+                    <button onclick="toggleView('heatmap')" class="btn-toggle">AI Heatmap</button>
+                </div>
+            </section>
 
-    <div class="new-diagnosis-wrapper" id="newDiagnosisWrapper">
-        <a href="/" class="btn btn-new-diagnosis">+ New Diagnosis</a>
-    </div>
+            <section class="panel analysis-panel">
+                <div class="panel-header">
+                    <h3>Clinical Analysis</h3>
+                </div>
 
-    <div class="diagnosis-container" id="diagnosisContainer">
-        <div id="preview"></div>
-        <div id="results"></div>
+                <div class="results-content" id="resultsContent">
+                    <div class="empty-state">Waiting for data...</div>
+                </div>
+
+                <div class="action-footer hidden" id="actionFooter">
+                    <button class="btn-primary" onclick="generatePDF()">Generate Report</button>
+                    <button class="btn-secondary" onclick="location.reload()">Reset Diagnosis</button>
+                </div>
+            </section>
+
+        </main>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
-
 </html>

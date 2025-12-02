@@ -1,227 +1,171 @@
-/* === Global Styles === */
-html {
-    height: 100%;
-    box-sizing: border-box;
+:root {
+    --bg-color: #f0f2f5;
+    --panel-bg: #ffffff;
+    --primary: #2c3e50;
+    --accent: #3498db;
+    --text-main: #333;
+    --border: #e0e0e0;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
-    line-height: 1.6;
-    
-    height: 100vh; 
-    margin: 0; 
-    padding: 20px; 
-    box-sizing: border-box; 
-    
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    margin: 0; padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    color: var(--text-main);
+}
+
+.dashboard {
     display: flex;
     flex-direction: column;
+    height: 100vh;
 }
 
-.heading {
-    text-align: center;
-    color: #2c3e50;
-    flex-shrink: 0;
-}
-
-/* === Upload Area === */
-.uploadOuter {
-    text-align: center;
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-    flex-shrink: 0;
-}
-
-/* --- NEW STYLES FOR THE "+ New Diagnosis" BUTTON --- */
-.new-diagnosis-wrapper {
-    display: none; /* Hidden by default */
-    text-align: center;
-    /* Use same margin as uploadOuter for consistency */
-    padding: 20px;
-    margin: 0 auto;
-    max-width: 600px;
-    flex-shrink: 0;
-}
-
-.btn-new-diagnosis {
-    /* Style it like a secondary button */
-    background-color: #27ae60; /* Green */
+/* HEADER */
+.top-bar {
+    height: 50px;
+    background: var(--primary);
     color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    display: inline-block;
-    transition: background-color 0.3s;
-    text-decoration: none; /* Remove underline from <a> tag */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centered Logo */
+    padding: 0 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.logo { font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; }
+.accent { color: var(--accent); }
+
+/* MAIN GRID */
+.main-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 45% 55%;
+    gap: 15px;
+    padding: 15px;
+    height: calc(100vh - 50px);
 }
 
-.btn-new-diagnosis:hover {
-    background-color: #2ecc71;
-}
-/* --- END NEW STYLES --- */
-
-
-.uploadOuter strong {
-    padding: 0 10px;
-    color: #555;
-    font-weight: 600;
-}
-
-/* === Button Style === */
-.btn {
-    background-color: #3498db;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    display: inline-block;
-    transition: background-color 0.3s;
-}
-
-.btn:hover {
-    background-color: #2980b9;
-}
-
-/* === Drag & Drop Box === */
-.dragBox {
-    width: 250px;
-    height: 100px;
-    margin: 0 auto;
-    position: relative;
-    text-align: center;
-    font-weight: bold;
-    line-height: 95px;
-    color: #888;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    display: inline-block;
-    transition: transform 0.3s, border-color 0.3s;
-    vertical-align: middle;
-}
-
-.dragBox input[type="file"] {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    opacity: 0;
-    top: 0;
-    left: 0;
-    cursor: pointer;
-}
-
-.draging {
-    transform: scale(1.05);
-    border-color: #3498db;
-}
-
-/* === Wrapper for Side-by-Side Layout === */
-.diagnosis-container {
-    display: none; 
-    flex-direction: row; 
-    justify-content: center; 
-    align-items: stretch; /* Makes boxes equal height */
-    gap: 20px; 
-    max-width: 1100px; 
-    margin: 20px auto; 
-    width: 100%; 
-
-    flex: 1; 
-    overflow-y: auto; /* Container scrolls if screen is tiny */
-    min-height: 0; 
-}
-
-/* === Preview & Results Box Styles === */
-#preview, #results {
-    padding: 20px;
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
+.panel {
+    background: var(--panel-bg);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    min-height: 250px; 
-
-    flex: 1; 
-    max-width: 500px; 
-}
-
-
-/* --- Styles for the *Content* INSIDE the boxes --- */
-#preview {
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
-    overflow: hidden; 
-}
-
-#preview img {
-    width: 250px;   
-    height: 250px;  
-    object-fit: contain; 
-    border-radius: 4px;
-    background-color: #f0f0f0; 
-}
-
-#results {
     display: flex;
     flex-direction: column;
-    align-items: stretch; 
-    overflow-y: auto; /* Add vertical scrollbar if content is too long */
+    overflow: hidden;
+    border: 1px solid var(--border);
 }
 
-#results h3 {
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 0;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 10px;
-}
-
-#results p {
-    font-size: 1.1em;
-    margin: 12px 0;
-}
-
-#results .diagnosis-class {
-    font-size: 1.3em;
-    color: #e74c3c; 
-    font-weight: bold;
-}
-
-#results .diagnosis-confidence {
-    font-size: 1.2em;
-    color: #27ae60; 
-    font-weight: bold;
-}
-
-#results ul {
-    list-style-type: none;
-    padding-left: 0;
-    margin-top: 15px;
-}
-
-#results li {
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin-bottom: 5px;
-    background-color: #f9f9f9;
+.panel-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+.panel-header h3 { margin: 0; font-size: 1rem; color: var(--primary); font-weight: 600; }
+
+/* LEFT PANEL (IMAGE) */
+.image-viewer {
+    flex: 1;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+.image-viewer img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+.placeholder-text { color: #666; text-align: center; font-size: 0.9rem; }
+
+.view-controls {
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    background: #eee;
+    border-top: 1px solid var(--border);
 }
 
-#results .loading-message,
-#results .error-message {
-    text-align: center;
-    color: #555;
-    font-style: italic;
-    width: 100%; 
+/* RIGHT PANEL (RESULTS) */
+.results-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
 }
 
-#results .error-message {
-    color: #e74c3c;
-    font-weight: bold;
+/* DIAGNOSIS BOX */
+.diagnosis-box {
+    background: #ecf0f1;
+    padding: 20px;
+    border-radius: 6px;
+    border-left: 5px solid var(--accent);
+    margin-bottom: 25px;
+}
+.diagnosis-title { font-size: 1.6rem; font-weight: 800; color: #c0392b; margin: 0 0 10px 0; letter-spacing: -0.5px; }
+.confidence-badge { 
+    background: #27ae60; color: white; 
+    padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; font-weight: 600;
+}
+
+/* GRAPH */
+.graph-container { margin-bottom: 25px; text-align: center; border: 1px solid #eee; padding: 10px; border-radius: 6px; }
+.graph-container img { max-width: 100%; height: auto; }
+
+/* MEDICAL TEXT */
+.med-section { margin-bottom: 20px; }
+.med-section h5 { 
+    margin: 0 0 8px 0; 
+    color: var(--primary); 
+    text-transform: uppercase; 
+    font-size: 0.75rem; 
+    letter-spacing: 1px; 
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+.med-text { font-size: 0.95rem; line-height: 1.6; color: #444; margin: 0; }
+
+/* ACTION FOOTER */
+.action-footer {
+    padding: 20px;
+    background: #f8f9fa;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+}
+
+/* BUTTONS */
+.btn-upload { 
+    background: var(--accent); color: white; border: none; 
+    padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: 500;
+}
+.btn-upload:hover { background-color: #2980b9; }
+
+.btn-primary { 
+    background: var(--primary); color: white; border: none; 
+    padding: 12px; border-radius: 4px; flex: 2; cursor: pointer; font-size: 1rem; font-weight: 600;
+}
+.btn-primary:hover { background-color: #34495e; }
+
+.btn-secondary { 
+    background: white; color: var(--primary); border: 1px solid var(--border); 
+    padding: 12px; border-radius: 4px; flex: 1; cursor: pointer; font-size: 1rem; font-weight: 500;
+}
+.btn-secondary:hover { background-color: #f1f1f1; }
+
+.btn-toggle { 
+    background: white; border: 1px solid #ccc; color: #555;
+    padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+}
+.btn-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.hidden { display: none; }
+.empty-state { 
+    text-align: center; color: #999; margin-top: 20%; 
+    font-style: italic; font-size: 1.1rem;
 }
