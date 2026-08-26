@@ -1,0 +1,744 @@
+{
+  "profile_version": "1.0.0",
+  "generated_at": "2026-08-27T00:00:00Z",
+  "source_scope": {
+    "github_repo": true,
+    "cicd_yaml": true,
+    "dockerfile": true,
+    "live_endpoint_scanned": false
+  },
+  "repository": {
+    "repo_url": "https://github.com/Premsaldana/NeuroSpine-AI",
+    "default_branch": "main",
+    "commit_sha": "9d359da252194f24953206a959f1126e3dbb1f90"
+  },
+  "agents": [
+    {
+      "agent_id": "agent-001",
+      "name": "SpineInferenceService",
+      "role": "Flask HTTP service that accepts an uploaded spinal X-ray, applies CLAHE preprocessing, runs a two-model CNN ensemble (ConvNeXt-Tiny + EfficientNet-B3) to classify it into one of four spinal conditions, and returns the label, confidence, Grad-CAM++ saliency overlay and probability chart as JSON.",
+      "framework": "generic HTTP",
+      "framework_confidence": 0.97,
+      "model": "convnext_tiny + efficientnet_b3 (4-class softmax ensemble)",
+      "model_provider": null,
+      "temperature": null,
+      "max_tokens": null,
+      "system_prompt_present": false,
+      "system_prompt_length": 0,
+      "tool_ids": [
+        "tool-001",
+        "tool-002",
+        "tool-003",
+        "tool-004",
+        "tool-005"
+      ],
+      "risk_rating": "CRITICAL",
+      "source_file": "app.py",
+      "file_path": "app.py",
+      "line_start": 164
+    },
+    {
+      "agent_id": "agent-002",
+      "name": "ClinicalReportComposer",
+      "role": "Browser-side component that maps the model's class label onto hardcoded radiographic findings, an impression, an ICD-10 billing code and a medication/therapy plan, renders them into the results panel, and emits a signed PDF radiology report via jsPDF.",
+      "framework": "generic HTTP",
+      "framework_confidence": 0.94,
+      "model": null,
+      "model_provider": null,
+      "temperature": null,
+      "max_tokens": null,
+      "system_prompt_present": false,
+      "system_prompt_length": 0,
+      "tool_ids": [
+        "tool-006",
+        "tool-007",
+        "tool-008",
+        "tool-009"
+      ],
+      "risk_rating": "CRITICAL",
+      "source_file": "static/script.js",
+      "file_path": "static/script.js",
+      "line_start": 76
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "edge-001",
+      "source_id": "client-browser",
+      "source_type": "client",
+      "target_id": "tool-005",
+      "target_type": "tool",
+      "protocol": "http",
+      "sanitised": false,
+      "external": true,
+      "trust_level": "LOW",
+      "risk_rating": "CRITICAL"
+    },
+    {
+      "edge_id": "edge-002",
+      "source_id": "google-drive-weights-host",
+      "source_type": "external_service",
+      "target_id": "mem-001",
+      "target_type": "memory_store",
+      "protocol": "https",
+      "sanitised": false,
+      "external": true,
+      "trust_level": "LOW",
+      "risk_rating": "CRITICAL"
+    },
+    {
+      "edge_id": "edge-003",
+      "source_id": "agent-001",
+      "source_type": "agent",
+      "target_id": "mem-001",
+      "target_type": "memory_store",
+      "protocol": "internal",
+      "sanitised": false,
+      "external": false,
+      "trust_level": "LOW",
+      "risk_rating": "CRITICAL"
+    },
+    {
+      "edge_id": "edge-004",
+      "source_id": "agent-001",
+      "source_type": "agent",
+      "target_id": "agent-002",
+      "target_type": "agent",
+      "protocol": "http",
+      "sanitised": false,
+      "external": false,
+      "trust_level": "MEDIUM",
+      "risk_rating": "HIGH"
+    },
+    {
+      "edge_id": "edge-005",
+      "source_id": "agent-002",
+      "source_type": "agent",
+      "target_id": "tool-009",
+      "target_type": "tool",
+      "protocol": "internal",
+      "sanitised": false,
+      "external": false,
+      "trust_level": "MEDIUM",
+      "risk_rating": "CRITICAL"
+    },
+    {
+      "edge_id": "edge-006",
+      "source_id": "cdnjs-cloudflare",
+      "source_type": "external_service",
+      "target_id": "agent-002",
+      "target_type": "agent",
+      "protocol": "https",
+      "sanitised": false,
+      "external": true,
+      "trust_level": "LOW",
+      "risk_rating": "HIGH"
+    }
+  ],
+  "tools": [
+    {
+      "tool_id": "tool-001",
+      "name": "load_ensemble",
+      "source_file": "app.py",
+      "file_path": "app.py",
+      "line_start": 90,
+      "description": "Instantiates ConvNeXt-Tiny and EfficientNet-B3, deserialises two .pth state dicts from disk with torch.load, moves both to the active device and attaches Grad-CAM++ hooks. Wraps everything in a bare try/except that returns four Nones on any failure.",
+      "categories": [
+        "model_loading",
+        "deserialization"
+      ],
+      "permissions": [
+        "READ",
+        "EXECUTE"
+      ],
+      "reversible": false,
+      "hitl_required": true,
+      "hitl_gate_present": false,
+      "over_permissioned": true,
+      "internal": true
+    },
+    {
+      "tool_id": "tool-002",
+      "name": "apply_clahe_cv2",
+      "source_file": "app.py",
+      "file_path": "app.py",
+      "line_start": 29,
+      "description": "Contrast Limited Adaptive Histogram Equalisation over the L channel in LAB colour space, used to normalise X-ray contrast before tensor conversion.",
+      "categories": [
+        "preprocessing",
+        "image"
+      ],
+      "permissions": [
+        "READ"
+      ],
+      "reversible": true,
+      "hitl_required": false,
+      "hitl_gate_present": false,
+      "over_permissioned": false,
+      "internal": true
+    },
+    {
+      "tool_id": "tool-003",
+      "name": "ensemble_predict",
+      "source_file": "app.py",
+      "file_path": "app.py",
+      "line_start": 178,
+      "description": "Runs both CNNs under torch.no_grad, averages their softmax vectors, and takes the argmax as the diagnosed class. No confidence floor and no abstention path.",
+      "categories": [
+        "inference",
+        "diagnosis"
+      ],
+      "permissions": [
+        "EXECUTE"
+      ],
+      "reversible": true,
+      "hitl_required": true,
+      "hitl_gate_present": false,
+      "over_permissioned": false,
+      "internal": true
+    },
+    {
+      "tool_id": "tool-004",
+      "name": "gradcam_generate",
+      "source_file": "app.py",
+      "file_path": "app.py",
+      "line_start": 60,
+      "description": "Grad-CAM++ saliency generation for the predicted class on both ensemble members; the two heatmaps are averaged and overlaid on the original image as clinical evidence.",
+      "categories": [
+        "xai",
+        "explainability"
+      ],
+      "permissions": [
+        "READ",
+        "EXECUTE"
+      ],
+      "reversible": true,
+      "hitl_required": false,
+      "hitl_gate_present": false,
+      "over_permissioned": false,
+      "internal": true
+    },
+    {
+      "tool_id": "tool-005",
+      "name": "predict_endpoint",
+      "source_file": "app.py",
+      "file_path": "app.py",
+      "line_start": 164,
+      "description": "POST /predict. Accepts an arbitrary multipart file with no authentication, no authorisation, no CSRF token, no rate limit, no size cap and no audit log, then decodes it with PIL.",
+      "categories": [
+        "http",
+        "upload",
+        "phi_ingress"
+      ],
+      "permissions": [
+        "READ",
+        "EXECUTE"
+      ],
+      "reversible": true,
+      "hitl_required": false,
+      "hitl_gate_present": false,
+      "over_permissioned": true,
+      "internal": false
+    },
+    {
+      "tool_id": "tool-006",
+      "name": "assign_icd10_code",
+      "source_file": "static/script.js",
+      "file_path": "static/script.js",
+      "line_start": 7,
+      "description": "Static MEDICAL_CODES dictionary that maps each of the four class labels to a fixed ICD-10-CM billing code (M48.50XA, M43.10, M47.812, Z00.00) plus canned radiographic findings and impression text.",
+      "categories": [
+        "billing",
+        "medical_coding"
+      ],
+      "permissions": [
+        "WRITE"
+      ],
+      "reversible": false,
+      "hitl_required": true,
+      "hitl_gate_present": false,
+      "over_permissioned": true,
+      "internal": true
+    },
+    {
+      "tool_id": "tool-007",
+      "name": "compose_treatment_plan",
+      "source_file": "static/script.js",
+      "file_path": "static/script.js",
+      "line_start": 30,
+      "description": "Static TREATMENT_PLANS dictionary supplying dos, don'ts, physical therapy protocol and named drug regimens (Acetaminophen, Calcitonin, Bisphosphonates, NSAIDs, muscle relaxants, epidural steroid injections) selected purely by class label.",
+      "categories": [
+        "treatment",
+        "medication"
+      ],
+      "permissions": [
+        "WRITE"
+      ],
+      "reversible": false,
+      "hitl_required": true,
+      "hitl_gate_present": false,
+      "over_permissioned": true,
+      "internal": true
+    },
+    {
+      "tool_id": "tool-008",
+      "name": "render_results_html",
+      "source_file": "static/script.js",
+      "file_path": "static/script.js",
+      "line_start": 76,
+      "description": "Writes diagnosis, confidence, ICD-10 code and probability breakdown into the DOM via innerHTML assignments.",
+      "categories": [
+        "ui",
+        "render"
+      ],
+      "permissions": [
+        "WRITE"
+      ],
+      "reversible": true,
+      "hitl_required": false,
+      "hitl_gate_present": false,
+      "over_permissioned": false,
+      "internal": true
+    },
+    {
+      "tool_id": "tool-009",
+      "name": "generate_pdf_report",
+      "source_file": "static/script.js",
+      "file_path": "static/script.js",
+      "line_start": 127,
+      "description": "Builds a letterhead radiology report PDF containing a randomly generated Patient ID, findings, impression, saliency figures, drug regimen and the footer 'Electronically signed by AI Assistant', then saves it to the user's disk.",
+      "categories": [
+        "report",
+        "pdf",
+        "clinical_document"
+      ],
+      "permissions": [
+        "WRITE"
+      ],
+      "reversible": false,
+      "hitl_required": true,
+      "hitl_gate_present": false,
+      "over_permissioned": true,
+      "internal": true
+    }
+  ],
+  "memory_stores": [
+    {
+      "memory_store_id": "mem-001",
+      "type": "file",
+      "kind": "pytorch_state_dict",
+      "connection": "https://drive.google.com/file/d/1c4-tjveNwRKCa1EUNdfVYufqDaJjfQ96/view",
+      "persistence_scope": "global",
+      "cross_session_isolated": false,
+      "poisoning_susceptible": true,
+      "writable_by": [],
+      "readable_by": [
+        "agent-001"
+      ],
+      "file_path": "source-pth"
+    },
+    {
+      "memory_store_id": "mem-002",
+      "type": "in_memory",
+      "kind": "browser_global_variable",
+      "connection": null,
+      "persistence_scope": "session",
+      "cross_session_isolated": true,
+      "poisoning_susceptible": false,
+      "writable_by": [
+        "agent-002"
+      ],
+      "readable_by": [
+        "agent-002"
+      ],
+      "file_path": "static/script.js"
+    }
+  ],
+  "risk_zones": [
+    {
+      "zone_id": "zone-001",
+      "severity": "CRITICAL",
+      "agent_ids": [
+        "agent-001"
+      ],
+      "edge_ids": [
+        "edge-002",
+        "edge-003"
+      ],
+      "tool_ids": [
+        "tool-001"
+      ],
+      "owasp_mappings": [
+        "LLM05:SupplyChainVulnerabilities",
+        "LLM03:TrainingDataPoisoning"
+      ],
+      "recommended_playbooks": [
+        "pb-weights-integrity-pinning",
+        "pb-safe-deserialization"
+      ]
+    },
+    {
+      "zone_id": "zone-002",
+      "severity": "CRITICAL",
+      "agent_ids": [
+        "agent-002"
+      ],
+      "edge_ids": [
+        "edge-004",
+        "edge-005"
+      ],
+      "tool_ids": [
+        "tool-006",
+        "tool-007",
+        "tool-009"
+      ],
+      "owasp_mappings": [
+        "LLM09:Overreliance",
+        "LLM08:ExcessiveAgency",
+        "LLM02:InsecureOutputHandling"
+      ],
+      "recommended_playbooks": [
+        "pb-clinician-signoff-gate",
+        "pb-remove-fabricated-clinical-text"
+      ]
+    },
+    {
+      "zone_id": "zone-003",
+      "severity": "HIGH",
+      "agent_ids": [
+        "agent-001"
+      ],
+      "edge_ids": [
+        "edge-001"
+      ],
+      "tool_ids": [
+        "tool-005"
+      ],
+      "owasp_mappings": [
+        "LLM06:SensitiveInformationDisclosure",
+        "LLM04:ModelDenialOfService"
+      ],
+      "recommended_playbooks": [
+        "pb-phi-endpoint-hardening",
+        "pb-upload-size-and-rate-limits"
+      ]
+    },
+    {
+      "zone_id": "zone-004",
+      "severity": "HIGH",
+      "agent_ids": [
+        "agent-002"
+      ],
+      "edge_ids": [
+        "edge-006"
+      ],
+      "tool_ids": [
+        "tool-008"
+      ],
+      "owasp_mappings": [
+        "LLM05:SupplyChainVulnerabilities"
+      ],
+      "recommended_playbooks": [
+        "pb-subresource-integrity"
+      ]
+    }
+  ],
+  "invocation_spec": {
+    "http_endpoint": "http://127.0.0.1:5000/predict",
+    "request_schema": {
+      "type": "object",
+      "required": [
+        "file"
+      ],
+      "properties": {
+        "file": {
+          "type": "string",
+          "contentEncoding": "binary",
+          "description": "multipart/form-data spinal X-ray image; extension filter is client-side only"
+        }
+      }
+    },
+    "python_callable": "app:predict",
+    "mock_tools": false,
+    "mock_log_endpoint": null,
+    "container_entrypoint": null
+  },
+  "system_prompts": [],
+  "ai_inferred_paths": [
+    {
+      "path_id": "path-001",
+      "description": "Supply-chain to remote code execution: the two .pth weight files are not in the repository and are fetched by hand from consumer Google Drive links recorded in source-pth, then deserialised with torch.load without weights_only=True. A substituted or tampered archive executes arbitrary pickle opcodes inside the Flask process at import time.",
+      "affected_components": [
+        "mem-001",
+        "edge-002",
+        "edge-003",
+        "tool-001",
+        "agent-001"
+      ],
+      "confidence": 0.86,
+      "hop_sequence": [
+        "mem-001",
+        "edge-002",
+        "tool-001",
+        "agent-001"
+      ],
+      "severity": "CRITICAL"
+    },
+    {
+      "path_id": "path-002",
+      "description": "Fabricated clinical evidence path: a single CNN argmax label crosses the HTTP boundary to the browser, where it is used as a dictionary key to select pre-written radiographic observations, an ICD-10 billing code and a named drug regimen, all of which are then rendered into a PDF that carries a letterhead, a random Patient ID and an electronic signature. No step in the chain is derived from the image or reviewed by a clinician.",
+      "affected_components": [
+        "tool-003",
+        "edge-004",
+        "agent-002",
+        "tool-006",
+        "tool-007",
+        "tool-009"
+      ],
+      "confidence": 0.93,
+      "hop_sequence": [
+        "tool-003",
+        "edge-004",
+        "agent-002",
+        "tool-006",
+        "tool-007",
+        "tool-009"
+      ],
+      "severity": "CRITICAL"
+    },
+    {
+      "path_id": "path-003",
+      "description": "Overconfidence path: argmax is taken with no minimum confidence threshold and no abstention branch, so a near-uniform probability vector yields the same categorical diagnosis and treatment plan as a high-confidence one. The Grad-CAM++ overlay is presented alongside as apparent corroboration.",
+      "affected_components": [
+        "tool-003",
+        "tool-004",
+        "agent-002",
+        "tool-008"
+      ],
+      "confidence": 0.9,
+      "hop_sequence": [
+        "tool-003",
+        "agent-002",
+        "tool-008"
+      ],
+      "severity": "HIGH"
+    },
+    {
+      "path_id": "path-004",
+      "description": "Silent-degradation path: load_ensemble swallows every exception and returns four Nones, so the process starts successfully with model_a set to None. Every subsequent request then fails inside the generic handler and returns the raw exception string to the caller, revealing internals and masking that no model is loaded at all.",
+      "affected_components": [
+        "tool-001",
+        "agent-001",
+        "tool-005"
+      ],
+      "confidence": 0.95,
+      "hop_sequence": [
+        "tool-001",
+        "agent-001",
+        "tool-005"
+      ],
+      "severity": "MEDIUM"
+    }
+  ],
+  "security_findings": [
+    {
+      "finding_id": "SEC-001",
+      "description": "Unsafe deserialisation of externally hosted model weights. torch.load is called without weights_only=True on two .pth files that are excluded by .gitignore and fetched manually from consumer Google Drive links, making arbitrary code execution a supply-chain substitution away.",
+      "severity": "CRITICAL",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "app.py",
+        "line_start": 95,
+        "line_end": 101,
+        "excerpt": "model_a.load_state_dict(torch.load(MODEL_PATH_A, map_location=device))\n        ...\n        model_b.load_state_dict(torch.load(MODEL_PATH_B, map_location=device))",
+        "confidence": 0.97
+      }
+    },
+    {
+      "finding_id": "SEC-002",
+      "description": "Flask is started with debug=True, exposing the Werkzeug interactive debugger. If reachable, its console grants unauthenticated remote code execution on the host serving patient imagery.",
+      "severity": "CRITICAL",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "app.py",
+        "line_start": 212,
+        "line_end": 213,
+        "excerpt": "if __name__ == \"__main__\":\n    app.run(debug=True, port=5000)",
+        "confidence": 0.99
+      }
+    },
+    {
+      "finding_id": "SEC-003",
+      "description": "Radiographic findings are fabricated, not observed. MEDICAL_CODES maps each class label to fixed prose that asserts specific measured anatomy the system never measures, for example a misalignment prediction always states 'Translational displacement >3mm observed'. The text is keyed only on the argmax label and is independent of the image.",
+      "severity": "CRITICAL",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "static/script.js",
+        "line_start": 7,
+        "line_end": 28,
+        "excerpt": "const MEDICAL_CODES = {\n    'fracture': {\n        finding: \"Cortical disruption noted with trabecular compression. Acute loss of vertebral height.\",\n        impression: \"ACUTE VERTEBRAL COMPRESSION FRACTURE.\",\n        icd_code: \"M48.50XA\"\n    },\n    'misalignment': {\n        finding: \"Loss of standard spinal curvature. Translational displacement >3mm observed.\",\n        ...",
+        "confidence": 0.98
+      }
+    },
+    {
+      "finding_id": "SEC-004",
+      "description": "Named drug regimens and therapy protocols are auto-selected by class label and written into a signed patient-facing PDF with no clinician review gate, including Calcitonin, Bisphosphonates, NSAIDs, muscle relaxants and epidural steroid injections.",
+      "severity": "CRITICAL",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "static/script.js",
+        "line_start": 30,
+        "line_end": 49,
+        "excerpt": "const TREATMENT_PLANS = {\n    'fracture': {\n        ...\n        medication: \"Analgesics (Acetaminophen), Calcitonin (for pain), Bisphosphonates (if osteoporotic).\"\n    },\n    'misalignment': {\n        ...\n        medication: \"NSAIDs (Ibuprofen/Naproxen) for inflammation. Muscle relaxants for spasms.\"\n    },",
+        "confidence": 0.98
+      }
+    },
+    {
+      "finding_id": "SEC-005",
+      "description": "Patient identity is fabricated at report generation time from Math.random, producing a non-unique, non-authoritative eight-digit Patient ID printed on a document formatted as a diagnostic record from 'NEUROSPINE DIAGNOSTIC CENTER'.",
+      "severity": "HIGH",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "static/script.js",
+        "line_start": 147,
+        "line_end": 149,
+        "excerpt": "doc.text(`Patient ID: ${Math.random().toString().substr(2, 8)}`, 15, 35);\n    doc.text(`Date: ${today}`, 150, 35);\n    doc.text(`Modality: DIGITAL X-RAY`, 150, 40);",
+        "confidence": 0.99
+      }
+    },
+    {
+      "finding_id": "SEC-006",
+      "description": "ICD-10-CM billing codes are assigned automatically from a CNN argmax with no coder or clinician in the loop, including the acute-injury code M48.50XA, creating a direct path from model error to fraudulent claim.",
+      "severity": "HIGH",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "static/script.js",
+        "line_start": 11,
+        "line_end": 11,
+        "excerpt": "icd_code: \"M48.50XA\"",
+        "confidence": 0.95
+      }
+    },
+    {
+      "finding_id": "SEC-007",
+      "description": "No confidence threshold and no abstention path. torch.max is taken over the averaged probability vector and the winning label is returned unconditionally, so a 26 percent maximum probability is presented with the same categorical certainty as a 99 percent one.",
+      "severity": "HIGH",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "app.py",
+        "line_start": 181,
+        "line_end": 184,
+        "excerpt": "probs = (torch.softmax(out_a, 1) + torch.softmax(out_b, 1)) / 2\n            prob_vector = probs[0]\n            confidence, predicted_index = torch.max(prob_vector, 0)\n            predicted_class = CLASS_LABELS[predicted_index.item()]",
+        "confidence": 0.96
+      }
+    },
+    {
+      "finding_id": "SEC-008",
+      "description": "The /predict endpoint ingests patient imaging with no authentication, authorisation, CSRF protection, rate limiting or audit logging, and the only file-type restriction is a client-side accept attribute that any HTTP client ignores.",
+      "severity": "HIGH",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "app.py",
+        "line_start": 164,
+        "line_end": 167,
+        "excerpt": "@app.route('/predict', methods=['POST'])\ndef predict():\n    if 'file' not in request.files: return jsonify({'error': 'No file part'}), 400\n    file = request.files['file']",
+        "confidence": 0.98
+      }
+    },
+    {
+      "finding_id": "SEC-009",
+      "description": "No MAX_CONTENT_LENGTH and no image dimension bound. The whole upload is read into memory and handed to PIL, so a decompression bomb or oversized file exhausts memory and denies service.",
+      "severity": "MEDIUM",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "app.py",
+        "line_start": 170,
+        "line_end": 172,
+        "excerpt": "img_bytes = file.read()\n        pil_img = Image.open(io.BytesIO(img_bytes)).convert('RGB')\n        img_np_original = np.array(pil_img)",
+        "confidence": 0.93
+      }
+    },
+    {
+      "finding_id": "SEC-010",
+      "description": "The generic exception handler returns the raw stringified exception to the HTTP client, disclosing filesystem paths, tensor shapes and library internals to any caller.",
+      "severity": "MEDIUM",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "app.py",
+        "line_start": 208,
+        "line_end": 210,
+        "excerpt": "except Exception as e:\n        print(f\"Error: {e}\")\n        return jsonify({'error': str(e)}), 500",
+        "confidence": 0.97
+      }
+    },
+    {
+      "finding_id": "SEC-011",
+      "description": "load_ensemble catches every exception and returns four Nones, which are assigned to the module-level model handles. The service therefore starts successfully in a state where no model is loaded and fails only later, per request, inside the generic handler.",
+      "severity": "MEDIUM",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "app.py",
+        "line_start": 110,
+        "line_end": 114,
+        "excerpt": "except Exception as e:\n        print(f\"\\u274c Error: {e}\")\n        return None, None, None, None\n\nmodel_a, model_b, cam_a, cam_b = load_ensemble()",
+        "confidence": 0.97
+      }
+    },
+    {
+      "finding_id": "SEC-012",
+      "description": "jsPDF and jspdf-autotable are loaded from a third-party CDN with no Subresource Integrity attribute and no pinned digest, so a CDN compromise can rewrite the code that composes and signs clinical reports.",
+      "severity": "MEDIUM",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "templates/index.html",
+        "line_start": 9,
+        "line_end": 10,
+        "excerpt": "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js\"></script>",
+        "confidence": 0.94
+      }
+    },
+    {
+      "finding_id": "SEC-013",
+      "description": "The repository contains no dependency manifest at all: no requirements.txt, no pyproject.toml, no lockfile and no Dockerfile. torch, torchvision, opencv, numpy, matplotlib and Flask are imported at unpinned floating versions, so the runtime is unreproducible and unauditable.",
+      "severity": "MEDIUM",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "app.py",
+        "line_start": 1,
+        "line_end": 16,
+        "excerpt": "import torch, torch.nn as nn, torchvision.models as models, torchvision.transforms as transforms, cv2, numpy as np, matplotlib -- none of which appear in any manifest; the repository tree contains only app.py, templates/, static/, notebooks/, source-pth, README.md and .gitignore.",
+        "confidence": 0.9
+      }
+    },
+    {
+      "finding_id": "SEC-014",
+      "description": "The PDF footer asserts 'Electronically signed by AI Assistant', attaching a signature-like attestation to an unreviewed automated output on a document that also carries a clinic name, address and phone number.",
+      "severity": "LOW",
+      "discovery_evidence": {
+        "source_type": "source_code",
+        "file_path": "static/script.js",
+        "line_start": 221,
+        "line_end": 221,
+        "excerpt": "doc.text(\"Electronically signed by AI Assistant. Verified by __________________\", 105, 280, null, null, \"center\");",
+        "confidence": 0.99
+      }
+    }
+  ],
+  "surface_risk_score": 88,
+  "profile_hash": "b50ba5153367530aa2b9fb136544d39affdd7540b97c5967aa43ae6aa8158919",
+  "cicd_profile": {
+    "deployment_target": null,
+    "environment_variables": [],
+    "secrets_config": [],
+    "test_frameworks": [],
+    "python_version": null
+  },
+  "container_profile": {
+    "installed_packages": [],
+    "entrypoint": "python app.py",
+    "env_var_defaults": {},
+    "exposed_ports": [
+      5000
+    ]
+  }
+}
